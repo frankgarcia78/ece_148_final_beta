@@ -1,0 +1,3 @@
+[submodule "ece_148_final_pkg/GraphBasedLocalTrajectoryPlanner"]
+	path = ece_148_final_pkg/GraphBasedLocalTrajectoryPlanner
+	url = https://github.com/TUMFTM/GraphBasedLocalTrajectoryPlanner.git
