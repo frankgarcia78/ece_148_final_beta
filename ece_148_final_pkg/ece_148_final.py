@@ -34,8 +34,8 @@ class Movement(Node):
         # create the publisher object
         self.path_pub = self.create_publisher(Path, 'motion_plan', 10)
         # both subscribers need to be modified/fixed
-        self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
-        self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
+        #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
+        #self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         
         #insert original code under
         # ----------------------------------------------------------------------------------------------------------------------
@@ -83,49 +83,24 @@ class Movement(Node):
         # set start pos
         self.ltpl_obj.set_startpos(pos_est=pos_est,
                             heading_est=heading_est)
-        
+
+        #this is only for testing, obj_list_dummy replaced by our car
         obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=True,vel_scale=0.3,s0=250.0)
+
+        #used to store sensor message variables
         self.obj_list = obj_list_dummy.get_objectlist()
         
         #end of original code
         
-        # prevent unused variable warning
-        self.subscriber
-        # define the timer period for 0.5 seconds
-        self.timer_period = 0.5
-        # define the variable to save the received info
-        self.laser_forward = 0
-        # create a Twist message
-        self.cmd = Twist()
-        self.timer = self.create_timer(self.timer_period, self.motion)
+        self.path = Path()
 
-    def perception(self,msg):
+    #def perception(self,msg):
         #this is the perception subscriber
     
-    def vel_pos(self,msg):
+    #def vel_pos(self,msg):
         #this is the velocity and position subscriber
         
         
-
-    def motion(self):
-        # print the data
-        self.get_logger().info('I receive: "%s"' % str(self.laser_forward))
-        # Logic of move
-        if self.laser_forward > 5:
-            self.cmd.linear.x = 0.5
-            self.cmd.angular.z = 0.5
-        elif self.laser_forward <5 and self.laser_forward>=0.5:
-            self.cmd.linear.x = 0.2
-            self.cmd.angular.z = 0.0
-         
-            
-            
-        else:
-            self.cmd.linear.x = 0.0
-            self.cmd.angular.z = 0.0
-        # Publishing the cmd_vel values to topipc
-        self.publisher_.publish(self.cmd)
-
 
             
 def main(args=None):
