@@ -18,9 +18,6 @@ import time
 import configparser
 import graph_ltpl
 
-##from planning_interfaces.msg import SensorMsg
-#from planning_interfaces.msg import SensorObject
-
 
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
