@@ -100,8 +100,17 @@ class Movement(Node):
     #def vel_pos(self,msg):
         #this is the velocity and position subscriber
         
+    def send_path(self):
         
+        self.path.header.frame_id = 'map'
+        for row in self.traj_set[self.behavior][0]:
+            pose_msg = PoseStamped()
+            pose_msg.pose.position.x = row[1]
+            pose_msg.pose.position.y = row[2]
 
+            self.path.poses.append(pose_msg)
+
+        self.path_pub.publish(self.path)
             
 def main(args=None):
     # initialize the ROS communication
