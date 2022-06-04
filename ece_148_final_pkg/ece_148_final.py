@@ -23,13 +23,12 @@ from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
 class ECE_148_final(Node):
-
     def __init__(self):
         # Here we have the class constructor
         # call the class constructor
         super().__init__('ece_148_final')
         # create the publisher object
-        self.path_pub = self.create_publisher(Path, 'ece_148_final', 10)
+        self.path_pub = self.create_publisher(Path, 's', 10)
         # both subscribers need to be modified/fixed
         #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         #self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
@@ -40,11 +39,11 @@ class ECE_148_final(Node):
         # ----------------------------------------------------------------------------------------------------------------------
 
         # top level path (module directory)
-        toppath = os.path.dirname(os.path.realpath(__file__))
-        sys.path.append(toppath)
+        # toppath = os.path.dirname(os.path.sssssssssssssssssssssssssssssssss                               
+        toppath = "/home/projects/ros2_ws/src/ece_148_final/ece_148_final_pkg"                                                                 
 
         track_param = configparser.ConfigParser()
-        if not track_param.read(toppath + "/params/driving_task.ini"):
+        if not track_param.read("/home/projects/ros2_ws/src/ece_148_final/ece_148_final_pkg/params/driving_task.ini"):
             raise ValueError('Specified online parameter config file does not exist or is empty!')
 
         track_specifier = json.loads(track_param.get('DRIVING_TASK', 'track'))
@@ -82,10 +81,10 @@ class ECE_148_final(Node):
                             heading_est=heading_est)
 
         #this is only for testing, obj_list_dummy replaced by our car
-        obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=True,vel_scale=0.3,s0=250.0)
+        # obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=True,vel_scale=0.3,s0=250.0)
 
         #used to store sensor message variables
-        self.obj_list = obj_list_dummy.get_objectlist()
+        # self.obj_list = obj_list_dummy.get_objectlist()
         
         #end of original code
         
