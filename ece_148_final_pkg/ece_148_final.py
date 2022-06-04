@@ -25,14 +25,14 @@ import graph_ltpl
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
-class Movement(Node):
+class ECE_148_final(Node):
 
     def __init__(self):
         # Here we have the class constructor
         # call the class constructor
-        super().__init__('movement')
+        super().__init__('ece_148_final')
         # create the publisher object
-        self.path_pub = self.create_publisher(Path, 'motion_plan', 10)
+        self.path_pub = self.create_publisher(Path, 'ece_148_final', 10)
         # both subscribers need to be modified/fixed
         #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         #self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
@@ -67,8 +67,8 @@ class Movement(Node):
 
         # intialize graph_ltpl-class
         self.ltpl_obj = graph_ltpl.Graph_LTPL.Graph_LTPL(path_dict=path_dict,
-                                                    visual_mode=True,
-                                                    log_to_file=True)
+                                                    visual_mode=False,
+                                                    log_to_file=False)
 
         # calculate offline graph
         self.ltpl_obj.graph_init()
@@ -116,11 +116,11 @@ def main(args=None):
     # initialize the ROS communication
     rclpy.init(args=args)
     # declare the node constructor
-    movement = Movement()       
+    ece_148_final = ECE_148_final()       
     # pause the program execution, waits for a request to kill the node (ctrl+c)
-    rclpy.spin(movement)
+    rclpy.spin(ece_148_final)
     # Explicity destroy the node
-    movement.destroy_node()
+    ece_148_final.destroy_node()
     # shutdown the ROS communication
     rclpy.shutdown()
 
