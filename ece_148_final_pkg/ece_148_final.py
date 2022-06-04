@@ -25,9 +25,11 @@ class ECE_148_final(Node):
         self.path_pub = self.create_publisher(Path, 'path_publisher', 10)
 
         timer_period = 0.5
-        self.timer = self.creat_timer(timer_period, self.sending_path)
+        self.timer1 = self.create_timer(timer_period, self.sending_path)
         self.behavior = None
-        print(self.behavior)
+        self.traj_set = {'straight': None}
+        obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=False,vel_scale=0.3,s0=250.0)
+        self.obj_list = obj_list_dummy.get_objectlist()
 
         # both subscribers need to be modified/fixed
         #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
@@ -74,7 +76,18 @@ class ECE_148_final(Node):
                             heading_est=heading_est)
         
         self.path = Path()
-        
+    
+    
+        for sel_action in ["right", "left", "straight", "follow"]:  # try to force 'right', else try next in list
+            if sel_action in self.traj_set.keys():
+                self.behavior = sel_action
+                break
+        self.get_logger().info("Behavior: {%s}" % (self.behavior))
+        self.ltpl_obj.calc_paths(prev_action_id=sel_action,
+                            object_list=self.obj_list)
+        self.traj_set = self.ltpl_obj.calc_vel_profile(pos_est=pos_est,
+                                                vel_est=vel_est)[0]
+    
     def sending_path(self):
         
         self.path.header.frame_id = 'map' #still confused what this is for
