@@ -1,10 +1,5 @@
 import rclpy
-# import the ROS2 python libraries
 from rclpy.node import Node
-
-# TODO: confirm package name with team 2
-#from planning_interface.msg import PathMsg, SensorMsg, PathObject, SensorObject # Dummy Objects
-# from team02_interface.msg import TrackedObjects # Saved for later
 
 from rclpy.qos import ReliabilityPolicy, QoSProfile
 
@@ -24,19 +19,19 @@ from geometry_msgs.msg import PoseStamped
 
 class ECE_148_final(Node):
     def __init__(self):
-        # Here we have the class constructor
-        # call the class constructor
+       
         super().__init__('ece_148_final')
-        # create the publisher object
+        
         self.path_pub = self.create_publisher(Path, 'path_publisher', 10)
+
+        timer_period = 0.5
+        self.timer = self.creat_timer(timer_period, self.sending_path)
+        self.behavior = None
+        print(self.behavior)
+
         # both subscribers need to be modified/fixed
         #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         #self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
-        
-        #insert original code under
-        # ----------------------------------------------------------------------------------------------------------------------
-        # IMPORT (should not change) -------------------------------------------------------------------------------------------
-        # ----------------------------------------------------------------------------------------------------------------------
                                
         toppath = "/home/projects/ros2_ws/src/ece_148_final/ece_148_final_pkg"                                                                 
 
@@ -77,26 +72,12 @@ class ECE_148_final(Node):
         # set start pos
         self.ltpl_obj.set_startpos(pos_est=pos_est,
                             heading_est=heading_est)
-
-        #this is only for testing, obj_list_dummy replaced by our car
-        # obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=True,vel_scale=0.3,s0=250.0)
-
-        #used to store sensor message variables
-        # self.obj_list = obj_list_dummy.get_objectlist()
-        
-        #end of original code
         
         self.path = Path()
-
-    #def perception(self,msg):
-        #this is the perception subscriber
-    
-    #def vel_pos(self,msg):
-        #this is the velocity and position subscriber
         
-    def send_path(self):
+    def sending_path(self):
         
-        self.path.header.frame_id = 'map'
+        self.path.header.frame_id = 'map' #still confused what this is for
         for row in self.traj_set[self.behavior][0]:
             pose_msg = PoseStamped()
             pose_msg.pose.position.x = row[1]
