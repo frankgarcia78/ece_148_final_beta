@@ -82,7 +82,6 @@ class ECE_148_final(Node):
             if sel_action in self.traj_set.keys():
                 self.behavior = sel_action
                 break
-        self.get_logger().info("Behavior: {%s}" % (self.behavior))
         self.ltpl_obj.calc_paths(prev_action_id=sel_action,
                             object_list=self.obj_list)
         self.traj_set = self.ltpl_obj.calc_vel_profile(pos_est=pos_est,
@@ -99,6 +98,8 @@ class ECE_148_final(Node):
             self.path.poses.append(pose_msg)
 
         self.path_pub.publish(self.path)
+        self.get_logger().info("Behavior: {%s}" % (self.behavior))
+        self.get_logger().info("Behavior: {%s}" % (pose_msg))
             
 def main(args=None):
     # initialize the ROS communication
