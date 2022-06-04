@@ -28,7 +28,7 @@ class ECE_148_final(Node):
         # call the class constructor
         super().__init__('ece_148_final')
         # create the publisher object
-        self.path_pub = self.create_publisher(Path, 's', 10)
+        self.path_pub = self.create_publisher(Path, 'path_publisher', 10)
         # both subscribers need to be modified/fixed
         #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         #self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
@@ -37,9 +37,7 @@ class ECE_148_final(Node):
         # ----------------------------------------------------------------------------------------------------------------------
         # IMPORT (should not change) -------------------------------------------------------------------------------------------
         # ----------------------------------------------------------------------------------------------------------------------
-
-        # top level path (module directory)
-        # toppath = os.path.dirname(os.path.sssssssssssssssssssssssssssssssss                               
+                               
         toppath = "/home/projects/ros2_ws/src/ece_148_final/ece_148_final_pkg"                                                                 
 
         track_param = configparser.ConfigParser()
