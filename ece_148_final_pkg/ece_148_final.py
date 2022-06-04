@@ -25,17 +25,70 @@ import graph_ltpl
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
-class Exercise31(Node):
+class Movement(Node):
 
     def __init__(self):
         # Here we have the class constructor
         # call the class constructor
-        super().__init__('exercise31')
+        super().__init__('movement')
         # create the publisher object
-        self.path_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.path_pub = self.create_publisher(Path, 'motion_plan', 10)
         # both subscribers need to be modified/fixed
         self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
+        
+        #insert original code under
+        # ----------------------------------------------------------------------------------------------------------------------
+        # IMPORT (should not change) -------------------------------------------------------------------------------------------
+        # ----------------------------------------------------------------------------------------------------------------------
+
+        # top level path (module directory)
+        toppath = os.path.dirname(os.path.realpath(__file__))
+        sys.path.append(toppath)
+
+        track_param = configparser.ConfigParser()
+        if not track_param.read(toppath + "/params/driving_task.ini"):
+            raise ValueError('Specified online parameter config file does not exist or is empty!')
+
+        track_specifier = json.loads(track_param.get('DRIVING_TASK', 'track'))
+
+        # define all relevant paths
+        path_dict = {'globtraj_input_path': toppath + "/inputs/traj_ltpl_cl/traj_ltpl_cl_" + track_specifier + ".csv",
+                    'graph_store_path': toppath + "/inputs/stored_graph.pckl",
+                    'ltpl_offline_param_path': toppath + "/params/ltpl_config_offline.ini",
+                    'ltpl_online_param_path': toppath + "/params/ltpl_config_online.ini",
+                    'log_path': toppath + "/logs/graph_ltpl/",
+                    'graph_log_id': datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+                    }
+
+        # ----------------------------------------------------------------------------------------------------------------------
+        # INITIALIZATION AND OFFLINE PART --------------------------------------------------------------------------------------
+        # ----------------------------------------------------------------------------------------------------------------------
+
+        # intialize graph_ltpl-class
+        self.ltpl_obj = graph_ltpl.Graph_LTPL.Graph_LTPL(path_dict=path_dict,
+                                                    visual_mode=True,
+                                                    log_to_file=True)
+
+        # calculate offline graph
+        self.ltpl_obj.graph_init()
+
+        # set start pose based on first point in provided reference-line
+        refline = graph_ltpl.imp_global_traj.src.import_globtraj_csv.\
+            import_globtraj_csv(import_path=path_dict['globtraj_input_path'])[0]
+        pos_est = refline[0, :]
+        heading_est = np.arctan2(np.diff(refline[0:2, 1]), np.diff(refline[0:2, 0])) - np.pi / 2
+        vel_est = 0.0
+
+        # set start pos
+        self.ltpl_obj.set_startpos(pos_est=pos_est,
+                            heading_est=heading_est)
+        
+        obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=True,vel_scale=0.3,s0=250.0)
+        self.obj_list = obj_list_dummy.get_objectlist()
+        
+        #end of original code
+        
         # prevent unused variable warning
         self.subscriber
         # define the timer period for 0.5 seconds
@@ -79,11 +132,11 @@ def main(args=None):
     # initialize the ROS communication
     rclpy.init(args=args)
     # declare the node constructor
-    exercise31 = Exercise31()       
+    movement = Movement()       
     # pause the program execution, waits for a request to kill the node (ctrl+c)
-    rclpy.spin(exercise31)
+    rclpy.spin(movement)
     # Explicity destroy the node
-    exercise31.destroy_node()
+    movement.destroy_node()
     # shutdown the ROS communication
     rclpy.shutdown()
 
