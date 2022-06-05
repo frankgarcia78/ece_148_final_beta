@@ -77,7 +77,6 @@ class ECE_148_final(Node):
         
         self.path = Path()
     
-    
         for sel_action in ["right", "left", "straight", "follow"]:  # try to force 'right', else try next in list
             if sel_action in self.traj_set.keys():
                 self.behavior = sel_action
