@@ -28,9 +28,8 @@ class ECE_148_final(Node):
         self.timer1 = self.create_timer(timer_period, self.sending_path)
         self.behavior = None
         self.traj_set = {'straight': None}
-        obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=False,vel_scale=0.3,s0=250.0)
-        self.obj_list = obj_list_dummy.get_objectlist()
-
+        self.obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=False,vel_scale=0.3,s0=250.0)
+        
         # both subscribers need to be modified/fixed
         #self.perc_sub = self.create_subscription(LaserScan, '/scan', self.perception, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         #self.vel_pos_sub = self.create_subscription(LaserScan, '/scan', self.vel_pos, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
@@ -67,28 +66,42 @@ class ECE_148_final(Node):
         # set start pose based on first point in provided reference-line
         refline = graph_ltpl.imp_global_traj.src.import_globtraj_csv.\
             import_globtraj_csv(import_path=path_dict['globtraj_input_path'])[0]
-        pos_est = refline[0, :]
+        self.pos_est = refline[0, :]
         heading_est = np.arctan2(np.diff(refline[0:2, 1]), np.diff(refline[0:2, 0])) - np.pi / 2
-        vel_est = 0.0
+        self.vel_est = 0.0
 
         # set start pos
-        self.ltpl_obj.set_startpos(pos_est=pos_est,
+        self.ltpl_obj.set_startpos(pos_est=self.pos_est,
                             heading_est=heading_est)
         
         self.path = Path()
+        self.tic = time.time()
+
+    def sending_path(self):
     
         for sel_action in ["right", "left", "straight", "follow"]:  # try to force 'right', else try next in list
             if sel_action in self.traj_set.keys():
                 self.behavior = sel_action
                 break
-        self.ltpl_obj.calc_paths(prev_action_id=sel_action,
-                            object_list=self.obj_list)
-        self.traj_set = self.ltpl_obj.calc_vel_profile(pos_est=pos_est,
-                                                vel_est=vel_est)[0]
-    
-    def sending_path(self):
         
+        self.obj_list = self.obj_list_dummy.get_objectlist()
+
+        self.ltpl_obj.calc_paths(prev_action_id=sel_action,object_list=self.obj_list)
+
+        if self.traj_set[sel_action] is not None:
+            self.pos_est, self.vel_est = graph_ltpl.testing_tools.src.vdc_dummy.\
+                vdc_dummy(pos_est=self.pos_est,
+                      last_s_course=(self.traj_set[sel_action][0][:, 0]),
+                      last_path=(self.traj_set[sel_action][0][:, 1:3]),
+                      last_vel_course=(self.traj_set[sel_action][0][:, 5]),
+                      iter_time=time.time() - self.tic)
+        self.tic = time.time()
+
+
+        self.traj_set = self.ltpl_obj.calc_vel_profile(pos_est=self.pos_est,vel_est=self.vel_est)[0]
+    
         self.path.header.frame_id = 'map' #still confused what this is for
+
         for row in self.traj_set[self.behavior][0]:
             pose_msg = PoseStamped()
             pose_msg.pose.position.x = row[1]
