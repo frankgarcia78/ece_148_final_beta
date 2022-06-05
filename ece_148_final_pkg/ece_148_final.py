@@ -25,7 +25,6 @@ class ECE_148_final(Node):
         self.path_pub = self.create_publisher(Path, 'path_publisher', 10)
         timer_period = 0.05
         self.timer1 = self.create_timer(timer_period, self.sending_path)
-        self.behavior = None
         self.traj_set = {'straight': None}
         self.obj_list_dummy = graph_ltpl.testing_tools.src.objectlist_dummy.ObjectlistDummy(dynamic=False,vel_scale=0.3,s0=250.0)
         
@@ -80,14 +79,15 @@ class ECE_148_final(Node):
     
         for sel_action in ["right", "left", "straight", "follow"]:  # try to force 'right', else try next in list
             if sel_action in self.traj_set.keys():
-                self.behavior = sel_action
                 break
+
         
         self.obj_list = self.obj_list_dummy.get_objectlist()
 
         self.ltpl_obj.calc_paths(prev_action_id=sel_action,object_list=self.obj_list)
 
-        if self.traj_set[self.behavior] is not None:
+
+        if self.traj_set[sel_action] is not None:
             self.pos_est, self.vel_est = graph_ltpl.testing_tools.src.vdc_dummy.\
                 vdc_dummy(pos_est=self.pos_est,
                       last_s_course=(self.traj_set[sel_action][0][:, 0]),
@@ -110,8 +110,9 @@ class ECE_148_final(Node):
             self.path.poses.append(pose_msg)
 
         self.path_pub.publish(self.path)
-        self.get_logger().info("Behavior: {%s}" % (self.behavior))
-        self.get_logger().info("Behavior: {%s}" % (pose_msg))
+        self.get_logger().info("pose_msg: {%s}" % (pose_msg))
+        #self.get_logger().info("sel_action: {%s}" % (sel_action))
+        #self.get_logger().info("traj_set: {%s}" % (self.traj_set))
             
 def main(args=None):
     # initialize the ROS communication
