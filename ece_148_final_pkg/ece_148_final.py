@@ -102,17 +102,18 @@ class ECE_148_final(Node):
         self.path.header.frame_id = 'map' #still confused what this is for
         
         #problem with loop below, program crashes after a while cause "KeyError: 'straight'"
-        for row in self.traj_set[sel_action][0]:
-            pose_msg = PoseStamped()
-            pose_msg.pose.position.x = row[1]
-            pose_msg.pose.position.y = row[2]
+        if sel_action in self.traj_set: # fixes the keyerror
+            for row in self.traj_set[sel_action][0]:
+                pose_msg = PoseStamped()
+                pose_msg.pose.position.x = row[1]
+                pose_msg.pose.position.y = row[2]
 
-            self.path.poses.append(pose_msg)
+                self.path.poses.append(pose_msg)
 
-        self.path_pub.publish(self.path)
-        self.get_logger().info("pose_msg: {%s}" % (pose_msg))
-        #self.get_logger().info("sel_action: {%s}" % (sel_action))
-        #self.get_logger().info("traj_set: {%s}" % (self.traj_set))
+            self.path_pub.publish(self.path)
+            self.get_logger().info("pose_msg: {%s}" % (pose_msg))
+            #self.get_logger().info("sel_action: {%s}" % (sel_action))
+            #self.get_logger().info("traj_set: {%s}" % (self.traj_set))
             
 def main(args=None):
     # initialize the ROS communication
