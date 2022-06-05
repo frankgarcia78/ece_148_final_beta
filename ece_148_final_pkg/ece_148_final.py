@@ -24,7 +24,7 @@ class ECE_148_final(Node):
         
         self.path_pub = self.create_publisher(Path, 'path_publisher', 10)
 
-        timer_period = 0.5
+        timer_period = 0.05
         self.timer1 = self.create_timer(timer_period, self.sending_path)
         self.behavior = None
         self.traj_set = {'straight': None}
@@ -88,7 +88,7 @@ class ECE_148_final(Node):
 
         self.ltpl_obj.calc_paths(prev_action_id=sel_action,object_list=self.obj_list)
 
-        if self.traj_set[sel_action] is not None:
+        if self.traj_set[self.behavior] is not None:
             self.pos_est, self.vel_est = graph_ltpl.testing_tools.src.vdc_dummy.\
                 vdc_dummy(pos_est=self.pos_est,
                       last_s_course=(self.traj_set[sel_action][0][:, 0]),
@@ -101,8 +101,9 @@ class ECE_148_final(Node):
         self.traj_set = self.ltpl_obj.calc_vel_profile(pos_est=self.pos_est,vel_est=self.vel_est)[0]
     
         self.path.header.frame_id = 'map' #still confused what this is for
-
-        for row in self.traj_set[self.behavior][0]:
+        
+        #problem with loop below, program crashes after a while cause "KeyError: 'straight'"
+        for row in self.traj_set[sel_action][0]:
             pose_msg = PoseStamped()
             pose_msg.pose.position.x = row[1]
             pose_msg.pose.position.y = row[2]
