@@ -23,7 +23,6 @@ class ECE_148_final(Node):
         super().__init__('ece_148_final')
         
         self.path_pub = self.create_publisher(Path, 'path_publisher', 10)
-
         timer_period = 0.05
         self.timer1 = self.create_timer(timer_period, self.sending_path)
         self.behavior = None
